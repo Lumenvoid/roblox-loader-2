@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<!-- Shortcut / Beginscherm icoon -->
+<link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/7/7e/Roblox_Logo_2022.jpg">
+<title>Loader++ Online Logo</title>
+
+<style>
+  body {
+  margin:0;
+  height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;
+  color:#fff;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background: linear-gradient(135deg,#0d0d0d,#000 70%);
+  position: relative;
+}
+
+/* Lichte overlay */
+body::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,0.3);
+}
+
+/* --------- Bewegende deeltjes achtergrond --------- */
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: moveParticle linear infinite;
+}
+
+@keyframes moveParticle {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-500px) translateX(50px);
+    opacity: 0;
+  }
+}
+
+  /* Alles boven overlay */
+.logo-img, .loading, .status, .progress-container, .updates {
+  position: relative;
+  z-index:1;
+}
+
+/* Roblox logo afbeelding bovenaan */
+.logo-img {
+  width: 150px;
+  margin-bottom: 20px;
+  animation: fadeIn 1s forwards;
+}
+
+/* ---------------- LOGO TEXT (optioneel) ---------------- */
+.logo {
+  font-size: 48px;
+  font-weight:bold;
+  letter-spacing:3px;
+  margin-bottom:18px;
+  opacity:0;
+  animation: fadeIn 1s forwards;
+}
+
+/* ---------------- STATUS + DOTS ---------------- */
+.loading {
+  font-size:20px;
+  margin-bottom:10px;
+}
+.dots span {
+  animation: blink 1.4s infinite both;
+}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+
+/* ---------------- UPDATES ---------------- */
+.updates {
+  position:fixed;
+  top:20px;
+  left:20px;
+  font-size:13px;
+  color:#0ff;
+  font-weight:500;
+  line-height:1.4;
+  opacity:0.8;
+  max-width:200px;
+}
+
+/* ---------------- STATUS BAR ---------------- */
+.status {
+  font-size:14px;
+  color:#bbb;
+  margin-bottom:6px;
+  min-height:20px;
+  text-align:center;
+}
+
+/* ---------------- PROGRESS BAR ---------------- */
+.progress-container {
+  width:80%;
+  max-width:400px;
+  height:20px;
+  background: rgba(255,255,255,0.08);
+  border-radius:12px;
+  overflow:hidden;
+  position:relative;
+  margin-top:10px;
+}
+.progress-bar {
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg,#00ff88,#00c8ff);
+  border-radius:12px;
+  transition: width 0.3s ease-out;
+}
+.shine {
+  position:absolute;
+  top:0;
+  left:-40%;
+  width:40%;
+  height:100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shine 2s infinite;
+}
+
+/* ---------------- ANIMATIONS ---------------- */
+@keyframes fadeIn { to {opacity:1;} }
+@keyframes fadeOut { to {opacity:0;} }
+@keyframes blink { 0%{opacity:.2} 20%{opacity:1} 100%{opacity:.2} }
+@keyframes shine { 0%{left:-40%;} 100%{left:120%;} }
+</style>
+</head>
+
+<body>
+
+<!-- Updates -->
+<div class="updates" id="updates"></div>
+
+<!-- Logo afbeelding -->
+<img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Roblox_Logo_2022.jpg" class="logo-img" alt="Roblox Logo">
+
+  <!-- Loading tekst -->
+<div class="loading">
+  Joining server<span class="dots"><span>.</span><span>.</span><span>.</span></span>
+</div>
+<div class="status" id="statusText">Initializing...</div>
+
+<!-- Progress bar -->
+<div class="progress-container">
+  <div class="progress-bar" id="bar"></div>
+  <div class="shine"></div>
+</div>
+
+<script>
+// VARIABLES
+const bar = document.getElementById("bar");
+const status = document.getElementById("statusText");
+const updatesBox = document.getElementById("updates");
+
+let progress = 0;
+let statusIndex = 0;
+let updateIndex = 0;
+
+// STATUSES
+const statuses = [
+  "Loading assets...",
+  "Loading scripts...",
+  "Syncing data...",
+  "Joining server...",
+  "Almost ready..."
+];
+
+// UPDATES
+const updates = [
+  "update leaks:",
+  "faster loader",
+  "discord server"
+  
+];
+
+// UPDATE STATUS
+function updateStatus() {
+  if(statusIndex < statuses.length){
+    status.textContent = statuses[statusIndex];
+    statusIndex++;
+  }
+}
+updateStatus();
+setInterval(updateStatus, 2200);
+
+// UPDATE BOX
+function updateBox() {
+  updatesBox.textContent = updates[updateIndex];
+  updateIndex = (updateIndex + 1) % updates.length;
+}
+updateBox();
+setInterval(updateBox, 3500);
+
+// PROGRESS BAR
+const interval = setInterval(() => {
+  let speed = 0.6;
+  if(progress>60) speed=0.3;
+  if(progress>85) speed=0.1;
+  progress += speed*(Math.random()*1.2);
+  if(progress>=100){
+    progress=100;
+    bar.style.width="100%";
+    clearInterval(interval);
+
+    // fade out + redirect
+    setTimeout(()=>{
+      document.body.style.transition="opacity 0.4s";
+      document.body.style.opacity=0;
+      setTimeout(()=>{
+        window.location="roblox://";
+      },400);
+    },700);
+  }
+  bar.style.width = progress+"%";
+},45);
+</script>
+  <script>
+// --------- Achtergrond deeltjes ---------
+const numParticles = 50;
+
+for(let i=0;i<numParticles;i++){
+  const particle = document.createElement('div');
+  particle.classList.add('particle');
+  
+  // willekeurige positie
+  particle.style.left = Math.random() * window.innerWidth + 'px';
+  particle.style.top = Math.random() * window.innerHeight + 'px';
+  
+  // willekeurige animatie duur
+  const duration = 5 + Math.random() * 10; // 5-15 sec
+  particle.style.animationDuration = duration + 's';
+  
+  document.body.appendChild(particle);
+}
+</script>
+
+</body>
+</html>
