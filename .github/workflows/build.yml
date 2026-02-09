@@ -16,15 +16,24 @@ jobs:
         with:
           node-version: 18
 
-      - name: Create package.json
-        run: |
-          echo {> package.json
-          echo   "name":"roblox-loader",>> package.json
-          echo   "version":"1.0.0",>> package.json
-          echo   "main":"main.js",>> package.json
-          echo   "scripts":{"build":"electron-builder"},>> package.json
-          echo   "build":{"appId":"com.loader.roblox","win":{"target":"portable"}},>> package.json
-          echo }>> package.json
+- name: Create package.json
+  run: |
+    @'
+{
+  "name": "roblox-loader",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.loader.roblox",
+    "win": {
+      "target": "portable"
+    }
+  }
+}
+'@ | Out-File -Encoding utf8 package.json
 
       - name: Install dependencies
         run: npm install electron electron-builder
