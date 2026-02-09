@@ -1,0 +1,36 @@
+name: Build Windows EXE
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Electron tools
+        run: |
+          npm init -y
+          npm install electron electron-builder
+
+      - name: Create main.js
+        run: |
+          echo const {app,BrowserWindow}=require('electron');> main.js
+          echo function createWindow(){const win=new BrowserWindow({width:900,height:600});win.loadFile('index.html');}>> main.js
+          echo app.whenReady().then(createWindow);>> main.js
+
+      - name: Build EXE
+        run: npx electron-builder --win --x64
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: exe
+          path: dist/*.exe
