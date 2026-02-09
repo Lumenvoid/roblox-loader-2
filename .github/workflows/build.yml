@@ -17,8 +17,8 @@ jobs:
       - name: Create package.json
         shell: powershell
         run: |
-          $json = @"
- {
+          $json = @'
+{
   "name": "roblox-loader",
   "version": "1.0.0",
   "main": "main.js",
@@ -29,16 +29,16 @@ jobs:
     }
   }
 }
-"@
-          $json | Out-File package.json -Encoding utf8
+'@
+          $json | Out-File -FilePath package.json -Encoding utf8
 
       - name: Install dependencies
-        run: npm install electron electron-builder
+        run: npm install electron --save-dev electron-builder --save-dev
 
       - name: Create main.js
         shell: powershell
         run: |
-          $code = @"
+          $code = @'
 const { app, BrowserWindow } = require("electron");
 
 function createWindow() {
@@ -51,8 +51,25 @@ function createWindow() {
 }
 
 app.whenReady().then(createWindow);
-"@
-          $code | Out-File main.js -Encoding utf8
+'@
+          $code | Out-File -FilePath main.js -Encoding utf8
+
+      - name: Create index.html
+        shell: powershell
+        run: |
+          $html = @'
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Roblox Loader</title>
+  </head>
+  <body>
+    <h1>Hello from Roblox Loader!</h1>
+  </body>
+</html>
+'@
+          $html | Out-File -FilePath index.html -Encoding utf8
 
       - name: Build EXE
         run: npx electron-builder --win
