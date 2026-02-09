@@ -2,31 +2,26 @@ name: Build Windows EXE
 
 on:
   push:
-    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
 
       - name: Create package.json
+        shell: powershell
         run: |
-          @'
+          $json = @"
 {
   "name": "roblox-loader",
   "version": "1.0.0",
   "main": "main.js",
-  "scripts": {
-    "build": "electron-builder"
-  },
   "build": {
     "appId": "com.loader.roblox",
     "win": {
@@ -34,14 +29,16 @@ jobs:
     }
   }
 }
-'@ | Out-File -Encoding utf8 package.json
+"@
+          $json | Out-File package.json -Encoding utf8
 
       - name: Install dependencies
         run: npm install electron electron-builder
 
       - name: Create main.js
+        shell: powershell
         run: |
-          @'
+          $code = @"
 const { app, BrowserWindow } = require("electron");
 
 function createWindow() {
@@ -54,7 +51,8 @@ function createWindow() {
 }
 
 app.whenReady().then(createWindow);
-'@ | Out-File -Encoding utf8 main.js
+"@
+          $code | Out-File main.js -Encoding utf8
 
       - name: Build EXE
         run: npx electron-builder --win
@@ -62,5 +60,5 @@ app.whenReady().then(createWindow);
       - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
-          name: roblox-loader-exe
+          name: exe
           path: dist/*.exe
