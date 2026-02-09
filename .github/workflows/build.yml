@@ -22,6 +22,13 @@ jobs:
   "name": "roblox-loader",
   "version": "1.0.0",
   "main": "main.js",
+  "scripts": {
+    "build": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^25.0.0",
+    "electron-builder": "^24.6.0"
+  },
   "build": {
     "appId": "com.loader.roblox",
     "win": {
@@ -33,7 +40,7 @@ jobs:
           $json | Out-File -FilePath package.json -Encoding utf8
 
       - name: Install dependencies
-        run: npm install electron --save-dev electron-builder --save-dev
+        run: npm install
 
       - name: Create main.js
         shell: powershell
@@ -72,7 +79,7 @@ app.whenReady().then(createWindow);
           $html | Out-File -FilePath index.html -Encoding utf8
 
       - name: Build EXE
-        run: npx electron-builder --win
+        run: npm run build
 
       - name: Upload EXE
         uses: actions/upload-artifact@v4
