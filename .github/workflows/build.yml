@@ -1,36 +1,48 @@
 name: Build Windows EXE
 
-on: [push]
+on:
+  push:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
 
-      - name: Install Electron tools
+      - name: Create package.json
         run: |
-          npm init -y
-          npm install electron electron-builder
+          echo {> package.json
+          echo   "name":"roblox-loader",>> package.json
+          echo   "version":"1.0.0",>> package.json
+          echo   "main":"main.js",>> package.json
+          echo   "scripts":{"build":"electron-builder"},>> package.json
+          echo   "build":{"appId":"com.loader.roblox","win":{"target":"portable"}},>> package.json
+          echo }>> package.json
+
+      - name: Install dependencies
+        run: npm install electron electron-builder
 
       - name: Create main.js
         run: |
-          echo const {app,BrowserWindow}=require('electron');> main.js
-          echo function createWindow(){const win=new BrowserWindow({width:900,height:600});win.loadFile('index.html');}>> main.js
+          echo const {app,BrowserWindow}=require("electron");> main.js
+          echo function createWindow(){>> main.js
+          echo const win=new BrowserWindow({width:900,height:600});>> main.js
+          echo win.loadFile("index.html");>> main.js
+          echo }>> main.js
           echo app.whenReady().then(createWindow);>> main.js
 
       - name: Build EXE
-        run: npx electron-builder --win --x64
+        run: npx electron-builder --win
 
       - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
-          name: exe
+          name: roblox-loader-exe
           path: dist/*.exe
