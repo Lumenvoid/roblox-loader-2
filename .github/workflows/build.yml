@@ -13,10 +13,9 @@ jobs:
         with:
           node-version: 18
 
-      - run: npm init -y
-      - run: npm install electron electron-builder
+      - run: npm install
 
-      - run: npx electron-builder --win --x64 --publish never
+      - run: npm run build
 
       - uses: actions/upload-artifact@v4
         with:
