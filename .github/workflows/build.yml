@@ -13,18 +13,36 @@ jobs:
         with:
           node-version: 18
 
-      - run: npm init -y
-      - run: npm install electron electron-builder
+      - name: Init project
+        run: npm init -y
+
+      - name: Install dependencies
+        run: npm install electron electron-builder
 
       - name: Create main.js
+        shell: powershell
         run: |
-          echo const {app,BrowserWindow}=require("electron");>main.js
-          echo function createWindow(){const win=new BrowserWindow({width:900,height:600});win.loadFile("index.html");}>>main.js
-          echo app.whenReady().then(createWindow);>>main.js
+          $code = @"
+const { app, BrowserWindow } = require("electron");
 
-      - run: npx electron-builder --win
+function createWindow() {
+  const win = new BrowserWindow({
+    width: 900,
+    height: 600
+  });
 
-      - uses: actions/upload-artifact@v4
+  win.loadFile("index.html");
+}
+
+app.whenReady().then(createWindow);
+"@
+          $code | Out-File main.js -Encoding utf8
+
+      - name: Build EXE
+        run: npx electron-builder --win --x64 --publish never
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
         with:
           name: exe
           path: dist/*.exe
